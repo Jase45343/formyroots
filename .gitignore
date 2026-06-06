@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.venv-1/
+venv/
+env/
+.Python
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Personal training data — large and/or consent-sensitive, keep local only
+data/faces/
+data/hair/
+data/faces_augmented/
+data/hair_augmented/
+data/hair_synthetic/
+data/tryon_styles/
+
+# Style reference images ARE included (needed by the deployed gallery).
+# If they ever get too large for GitHub, exclude data/styles/ and host them elsewhere.
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Misc
+*.log
