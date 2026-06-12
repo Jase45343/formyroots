@@ -105,8 +105,27 @@ def get_style_culture(style_name):
     return {"origin": "", "meaning": "", "cultural_note": ""}
 
 
-# ── Hair care routine ─────────────────────────────────────────────────────────
-HAIRCARE_RULES = {
+# ══════════════════════════════════════════════════════════════════════════════
+# HAIR STATE HIERARCHY
+#
+#   Natural  -> sub-classified by type (3C / 4A / 4B / 4C)  [fully implemented]
+#   Relaxed  -> chemically straightened; coil-type classifier does NOT apply
+#   Fluffy   -> texture/state; sub-classification not yet known
+#
+# The face-shape pipeline is the same for all three states. Only the hair-type
+# classifier and the type-specific routines/products differ.
+#
+# IMPORTANT: relaxed and fluffy routines/products below are PLACEHOLDERS.
+# Replace them with knowledge from your salon contacts before relying on them.
+# ══════════════════════════════════════════════════════════════════════════════
+
+VALID_STATES = ("natural", "relaxed", "fluffy")
+
+
+# ── Hair care routines, by state ────────────────────────────────────────────────
+# Natural is keyed by hair type (3C/4A/4B/4C). Relaxed and fluffy are single
+# routines for now (no sub-type).
+NATURAL_HAIRCARE = {
     "3C": {
         "cleanse":   "Sulfate-free moisturising shampoo (wash every 5-7 days)",
         "condition": "Rinse-out conditioner + weekly deep conditioner (30 min)",
@@ -133,66 +152,126 @@ HAIRCARE_RULES = {
     },
 }
 
-def get_haircare_routine(hair_type):
-    return HAIRCARE_RULES.get(hair_type.upper(), HAIRCARE_RULES["4C"])
+# PLACEHOLDER — confirm with salon contacts and replace.
+RELAXED_HAIRCARE = {
+    "cleanse":   "Neutralising shampoo after relaxing; gentle moisturising shampoo otherwise",
+    "condition": "Deep conditioner weekly to counter chemical dryness",
+    "style":     "Light moisturiser and wrap lotion; avoid heavy product buildup",
+    "extras":    "PLACEHOLDER - confirm relaxed-hair routine with salon contacts. "
+                 "Note: relaxers are being phased out due to scalp/eczema concerns.",
+}
+
+# PLACEHOLDER — confirm with salon contacts and replace.
+FLUFFY_HAIRCARE = {
+    "cleanse":   "Moisturising shampoo",
+    "condition": "Regular conditioning to manage volume and moisture",
+    "style":     "Blow-out friendly; light moisturiser",
+    "extras":    "PLACEHOLDER - confirm what 'fluffy' means to your stylists and "
+                 "how it sub-classifies, then replace this routine.",
+}
 
 
-# ── Product database ─────────────────────────────────────────────────────────
+def get_haircare_routine(hair_state, hair_type=None):
+    state = (hair_state or "natural").lower()
+    if state == "relaxed":
+        return RELAXED_HAIRCARE
+    if state == "fluffy":
+        return FLUFFY_HAIRCARE
+    # natural
+    return NATURAL_HAIRCARE.get((hair_type or "4C").upper(), NATURAL_HAIRCARE["4C"])
+
+
+# ── Product database (local, from salon research) ────────────────────────────────
+# "states" = which hair states the product suits.
+# Products and notes informed by Lesotho salon research (Black Chic, Soft-n-Free,
+# Sta-Sof-Fro, Dark n Lovely, etc.). Prices are approximate ZAR — update as needed.
 PRODUCTS = [
-    {"name": "Sofn'Free GroHealthy Moisture Retain Shampoo", "type": "shampoo",
-     "hair_types": ["4A","4B","4C"], "price_ZAR": 45, "where": "Clicks, Pick n Pay",
-     "why": "Sulfate-free, adds moisture to dry coily hair"},
-    {"name": "ORS Olive Oil Creamy Aloe Shampoo", "type": "shampoo",
-     "hair_types": ["3C","4A","4B","4C"], "price_ZAR": 60, "where": "Clicks, Dis-Chem",
-     "why": "Gentle cleanse, olive oil prevents moisture loss"},
-    {"name": "Dark & Lovely Au Naturale Moisture LOC Shampoo", "type": "shampoo",
-     "hair_types": ["4B","4C"], "price_ZAR": 55, "where": "Shoprite, Pick n Pay",
-     "why": "Formulated for natural African hair textures"},
-    {"name": "ORS Olive Oil Replenishing Conditioner", "type": "conditioner",
-     "hair_types": ["3C","4A","4B","4C"], "price_ZAR": 65, "where": "Clicks, Dis-Chem",
-     "why": "Deep moisture, detangles 4C hair effectively"},
-    {"name": "Sofn'Free Curl Activator & Moisturiser", "type": "conditioner",
-     "hair_types": ["3C","4A"], "price_ZAR": 40, "where": "Clicks, Pick n Pay",
-     "why": "Activates curl definition for 3C and 4A patterns"},
-    {"name": "Dark & Lovely Au Naturale Curl Defining Creme", "type": "conditioner",
-     "hair_types": ["4B","4C"], "price_ZAR": 70, "where": "Shoprite, Pick n Pay",
-     "why": "Reduces shrinkage, defines coils"},
-    {"name": "Eco Styler Olive Oil Gel", "type": "styling",
-     "hair_types": ["3C","4A"], "price_ZAR": 80, "where": "Clicks, Dis-Chem",
-     "why": "Hold without crunch, enhances curl definition"},
-    {"name": "African Pride Moisture Miracle Curl Pudding", "type": "styling",
-     "hair_types": ["4A","4B","4C"], "price_ZAR": 75, "where": "Clicks, Pick n Pay",
-     "why": "Moisture-rich pudding for coily and kinky textures"},
-    {"name": "Sofn'Free Shea Butter Wrap Lotion", "type": "styling",
-     "hair_types": ["4B","4C"], "price_ZAR": 35, "where": "Shoprite, Clicks",
-     "why": "Budget-friendly sealant, reduces frizz"},
+    # Natural-hair focused
+    {"name": "Black Chic Hair Food", "type": "treatment",
+     "states": ["natural", "fluffy"], "hair_types": ["3C","4A","4B","4C"],
+     "price_ZAR": 25, "where": "Local supermarkets, salons",
+     "why": "Affordable, reliable hair food to manage dryness and fragility"},
+    {"name": "Soft-n-Free Moisturising Spray", "type": "styling",
+     "states": ["natural", "relaxed", "fluffy"], "hair_types": ["3C","4A","4B","4C"],
+     "price_ZAR": 40, "where": "Clicks, Shoprite, salons",
+     "why": "Everyday moisture spray; light and widely available"},
+    {"name": "Dark n Lovely (moisturiser range)", "type": "treatment",
+     "states": ["natural", "relaxed"], "hair_types": ["3C","4A","4B","4C"],
+     "price_ZAR": 55, "where": "Clicks, Shoprite, Pick n Pay",
+     "why": "Common, trusted base for general hair maintenance"},
     {"name": "Castor Oil (100% pure)", "type": "oil",
-     "hair_types": ["3C","4A","4B","4C"], "price_ZAR": 30, "where": "Clicks, pharmacies",
-     "why": "Seals moisture, promotes growth, suits all African hair types"},
-    {"name": "African Pride Shea Butter & Coconut Oil", "type": "oil",
-     "hair_types": ["4B","4C"], "price_ZAR": 55, "where": "Clicks, Pick n Pay",
-     "why": "Heavy sealant for very dry 4B/4C hair"},
-    {"name": "ORS Hair Mayonnaise Treatment", "type": "treatment",
-     "hair_types": ["4A","4B","4C"], "price_ZAR": 70, "where": "Clicks, Dis-Chem",
-     "why": "Protein treatment to strengthen brittle natural hair"},
+     "states": ["natural", "fluffy"], "hair_types": ["3C","4A","4B","4C"],
+     "price_ZAR": 30, "where": "Clicks, pharmacies",
+     "why": "Seals moisture, promotes growth, suits natural African hair"},
+    {"name": "Sta-Sof-Fro", "type": "styling",
+     "states": ["natural"], "hair_types": ["4A","4B","4C"],
+     "price_ZAR": 45, "where": "Local supermarkets, salons",
+     "why": "Softens and moisturises; used to maintain natural styles and perms"},
+    {"name": "Special Feeling Gel", "type": "styling",
+     "states": ["natural"], "hair_types": ["3C","4A","4B","4C"],
+     "price_ZAR": 35, "where": "Local supermarkets, salons",
+     "why": "Styling hold; commonly used to maintain perms and set styles"},
+    # Maintenance / shared
+    {"name": "Restore", "type": "treatment",
+     "states": ["natural", "relaxed"], "hair_types": ["3C","4A","4B","4C"],
+     "price_ZAR": 50, "where": "Clicks, salons",
+     "why": "Maintenance for short styles (pixie, spiral) and general care"},
+    {"name": "Revlon (maintenance range)", "type": "styling",
+     "states": ["natural", "relaxed"], "hair_types": ["3C","4A","4B","4C"],
+     "price_ZAR": 60, "where": "Clicks, Dis-Chem",
+     "why": "Maintenance for short and styled hair"},
+    # Relaxed-specific (chemical aftercare)
+    {"name": "Neutralizer (post-relaxer)", "type": "treatment",
+     "states": ["relaxed"], "hair_types": [],
+     "price_ZAR": 40, "where": "Salons, beauty supply",
+     "why": "Neutralises relaxer chemicals to protect the scalp after relaxing"},
 ]
 
-def get_products(hair_type, max_results=5):
-    matched = [p for p in PRODUCTS if hair_type.upper() in p["hair_types"]]
+
+def get_products(hair_state, hair_type=None, max_results=5):
+    state = (hair_state or "natural").lower()
+    matched = []
+    for p in PRODUCTS:
+        if state not in p.get("states", []):
+            continue
+        # For natural hair, also respect hair type when the product specifies types
+        if state == "natural" and hair_type and p.get("hair_types"):
+            if hair_type.upper() not in p["hair_types"]:
+                continue
+        matched.append(p)
     matched.sort(key=lambda x: x["price_ZAR"])
     return matched[:max_results]
 
 
 # ── Master function ─────────────────────────────────────────────────────────
-def get_full_recommendation(face_shape, hair_type, gender="unisex"):
-    hairstyles = get_hairstyles(face_shape, hair_type, gender)
+def get_full_recommendation(face_shape, hair_state="natural", hair_type=None, gender="unisex"):
+    """
+    hair_state: "natural" | "relaxed" | "fluffy"
+    hair_type:  only meaningful when hair_state == "natural" (3C/4A/4B/4C)
+
+    For relaxed/fluffy, the coil-type classifier does not apply, so hair_type
+    is ignored for those branches.
+    """
+    state = (hair_state or "natural").lower()
+
+    # Hairstyles: query the styles DB by face shape + gender always.
+    # For natural hair we also use hair_type to refine; for relaxed/fluffy we
+    # match on face shape + gender only (until those branches are detailed).
+    if state == "natural" and hair_type:
+        hairstyles = get_hairstyles(face_shape, hair_type, gender)
+    else:
+        # Relaxed / fluffy: recommend by face shape + gender, ignore coil type.
+        # Use a permissive hair_type so the DB query still returns styles.
+        hairstyles = get_hairstyles(face_shape, "4C", gender)
+
     return {
         "face_shape": face_shape,
-        "hair_type":  hair_type,
+        "hair_state": state,
+        "hair_type":  hair_type if state == "natural" else None,
         "gender":     gender,
         "hairstyles": hairstyles,
-        "routine":    get_haircare_routine(hair_type),
-        "products":   get_products(hair_type),
+        "routine":    get_haircare_routine(state, hair_type),
+        "products":   get_products(state, hair_type),
     }
 
 
@@ -201,10 +280,29 @@ if __name__ == "__main__":
     print(f"Loaded {len(STYLES)} style entries "
           f"({len(set(s['name'] for s in STYLES))} unique styles)\n")
 
-    for gender in ["masculine", "feminine"]:
-        print(f"\n{'='*50}\n  {gender.upper()} — square face, 4C hair\n{'='*50}")
-        rec = get_full_recommendation("square", "4C", gender)
-        for i, style in enumerate(rec["hairstyles"], 1):
-            img = get_reference_image(style, gender)
-            print(f"  {i}. {style}")
-            print(f"     {img}")
+    # Natural, by type and gender
+    print("="*52)
+    print("  NATURAL — square face, 4C, masculine")
+    print("="*52)
+    rec = get_full_recommendation("square", "natural", "4C", "masculine")
+    for i, s in enumerate(rec["hairstyles"], 1):
+        print(f"  {i}. {s}")
+    print("  Products:", ", ".join(p["name"] for p in rec["products"]))
+
+    # Relaxed (type ignored)
+    print("\n" + "="*52)
+    print("  RELAXED — oval face, feminine (coil type ignored)")
+    print("="*52)
+    rec = get_full_recommendation("oval", "relaxed", None, "feminine")
+    for i, s in enumerate(rec["hairstyles"], 1):
+        print(f"  {i}. {s}")
+    print("  Routine extras:", rec["routine"]["extras"])
+    print("  Products:", ", ".join(p["name"] for p in rec["products"]))
+
+    # Fluffy
+    print("\n" + "="*52)
+    print("  FLUFFY — round face, either")
+    print("="*52)
+    rec = get_full_recommendation("round", "fluffy", None, "unisex")
+    print("  Routine extras:", rec["routine"]["extras"])
+    print("  Products:", ", ".join(p["name"] for p in rec["products"]))

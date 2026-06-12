@@ -236,28 +236,64 @@ def load_image(source, max_dim=1024):
 
 
 # ── Prediction helpers ─────────────────────────────────────────────────────────
+def _angle(a, b, c):
+    ba = a - b; bc = c - b
+    denom = np.linalg.norm(ba) * np.linalg.norm(bc)
+    if denom == 0:
+        return 0.0
+    cosang = np.clip(np.dot(ba, bc) / denom, -1.0, 1.0)
+    return np.degrees(np.arccos(cosang))
+
+
 def predict_face_shape(img_arr, detector, svm, scaler, pca, le):
+    # Landmark indices — must match extract_face_features.py exactly
     FOREHEAD_TOP=10; CHIN_BOTTOM=152; LEFT_CHEEK=234; RIGHT_CHEEK=454
-    LEFT_JAW=172;  RIGHT_JAW=397;  LEFT_FOREHEAD=70; RIGHT_FOREHEAD=300
-    LEFT_TEMPLE=162; RIGHT_TEMPLE=389
+    LEFT_JAW=172; RIGHT_JAW=397; LEFT_FOREHEAD=70; RIGHT_FOREHEAD=300
+    LEFT_TEMPLE=162; RIGHT_TEMPLE=389; LEFT_MIDJAW=135; RIGHT_MIDJAW=364
+    CHIN_LEFT=149; CHIN_RIGHT=378; NOSE_BRIDGE=168; UPPER_LIP=0
+    LEFT_CHEEKBONE=116; RIGHT_CHEEKBONE=345
 
     img_rgb = cv2.cvtColor(img_arr, cv2.COLOR_BGR2RGB)
     h, w, _ = img_arr.shape
-    result  = detector.detect(mp.Image(image_format=mp.ImageFormat.SRGB, data=img_rgb))
+    result = detector.detect(mp.Image(image_format=mp.ImageFormat.SRGB, data=img_rgb))
     if not result.face_landmarks:
         return None, None
     lm = result.face_landmarks[0]
     def pt(i): return np.array([lm[i].x * w, lm[i].y * h])
 
-    fh  = np.linalg.norm(pt(FOREHEAD_TOP) - pt(CHIN_BOTTOM))
-    fw  = np.linalg.norm(pt(LEFT_CHEEK)   - pt(RIGHT_CHEEK))
-    jw  = np.linalg.norm(pt(LEFT_JAW)     - pt(RIGHT_JAW))
-    fw2 = np.linalg.norm(pt(LEFT_FOREHEAD)- pt(RIGHT_FOREHEAD))
-    tw  = np.linalg.norm(pt(LEFT_TEMPLE)  - pt(RIGHT_TEMPLE))
-    if fw == 0:
+    face_height    = np.linalg.norm(pt(FOREHEAD_TOP) - pt(CHIN_BOTTOM))
+    face_width     = np.linalg.norm(pt(LEFT_CHEEK) - pt(RIGHT_CHEEK))
+    jaw_width      = np.linalg.norm(pt(LEFT_JAW) - pt(RIGHT_JAW))
+    forehead_width = np.linalg.norm(pt(LEFT_FOREHEAD) - pt(RIGHT_FOREHEAD))
+    temple_width   = np.linalg.norm(pt(LEFT_TEMPLE) - pt(RIGHT_TEMPLE))
+    cheekbone_w    = np.linalg.norm(pt(LEFT_CHEEKBONE) - pt(RIGHT_CHEEKBONE))
+    midjaw_width   = np.linalg.norm(pt(LEFT_MIDJAW) - pt(RIGHT_MIDJAW))
+    chin_width     = np.linalg.norm(pt(CHIN_LEFT) - pt(CHIN_RIGHT))
+
+    if face_width == 0 or face_height == 0 or forehead_width == 0:
         return None, None
 
-    X = pca.transform(scaler.transform([[fh/fw, jw/fw, fw2/fw, tw/fw, jw/fw2, jw/fh]]))
+    upper_third = np.linalg.norm(pt(FOREHEAD_TOP) - pt(NOSE_BRIDGE))
+    mid_third   = np.linalg.norm(pt(NOSE_BRIDGE) - pt(UPPER_LIP))
+    lower_third = np.linalg.norm(pt(UPPER_LIP) - pt(CHIN_BOTTOM))
+
+    jaw_angle = (_angle(pt(LEFT_MIDJAW), pt(LEFT_JAW), pt(CHIN_BOTTOM)) +
+                 _angle(pt(RIGHT_MIDJAW), pt(RIGHT_JAW), pt(CHIN_BOTTOM))) / 2.0
+    chin_angle = _angle(pt(CHIN_LEFT), pt(CHIN_BOTTOM), pt(CHIN_RIGHT))
+
+    feats = [[
+        face_height / face_width, jaw_width / face_width,
+        forehead_width / face_width, temple_width / face_width,
+        cheekbone_w / face_width, midjaw_width / face_width,
+        chin_width / face_width, jaw_width / forehead_width,
+        jaw_width / cheekbone_w, forehead_width / cheekbone_w,
+        chin_width / jaw_width, jaw_width / face_height,
+        cheekbone_w / face_height, upper_third / face_height,
+        mid_third / face_height, lower_third / face_height,
+        upper_third / lower_third, jaw_angle / 180.0,
+        chin_angle / 180.0, midjaw_width / jaw_width,
+    ]]
+    X = pca.transform(scaler.transform(feats))
     pred = svm.predict(X)
     prob = svm.predict_proba(X)[0]
     return le.inverse_transform(pred)[0], dict(zip(le.classes_, prob))
@@ -333,6 +369,12 @@ with st.sidebar:
     st.markdown('<div class="fmr-company">by DeepRooted Intelligence</div>', unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
 
+    st.markdown('<div class="fmr-card-label">Hair State</div>', unsafe_allow_html=True)
+    state_pref = st.radio("Hair state", ["Natural", "Relaxed", "Fluffy"], label_visibility="collapsed")
+    hair_state = state_pref.lower()
+    st.caption("Coil-type analysis (3C-4C) applies to natural hair only.")
+
+    st.markdown("<br>", unsafe_allow_html=True)
     st.markdown('<div class="fmr-card-label">Style Presentation</div>', unsafe_allow_html=True)
     gender_pref = st.radio("Presentation", ["Either", "Masculine", "Feminine"], label_visibility="collapsed")
     gender_map = {"Either": "unisex", "Masculine": "masculine", "Feminine": "feminine"}
@@ -389,7 +431,10 @@ with col1:
 
 with col2:
     st.markdown('<div class="fmr-card-label">Your hair</div>', unsafe_allow_html=True)
-    st.caption("Close-up of your hair texture")
+    if hair_state == "natural":
+        st.caption("Close-up of your hair texture")
+    else:
+        st.caption("Optional for relaxed / fluffy hair")
     if mode == "Take photo":
         hair_src = st.camera_input("Hair", key="hair_cam", label_visibility="collapsed")
     else:
@@ -401,20 +446,32 @@ hair_pil, hair_arr = load_image(hair_src)
 
 
 # ── Analysis ───────────────────────────────────────────────────────────────────
-if face_pil is not None and hair_pil is not None:
+# Natural hair needs both photos (face + hair texture).
+# Relaxed/fluffy: the coil-type classifier doesn't apply, so only the face photo
+# is required; the hair photo is optional.
+ready = face_pil is not None and (hair_state != "natural" or hair_pil is not None)
+
+if ready:
 
     st.markdown("<br>", unsafe_allow_html=True)
-    p1, p2 = st.columns(2, gap="large")
-    with p1:
-        st.image(face_pil, caption="Your face", use_container_width=True)
-    with p2:
-        st.image(hair_pil, caption="Your hair", use_container_width=True)
+    if hair_pil is not None:
+        p1, p2 = st.columns(2, gap="large")
+        with p1:
+            st.image(face_pil, caption="Your face", use_container_width=True)
+        with p2:
+            st.image(hair_pil, caption="Your hair", use_container_width=True)
+    else:
+        st.image(face_pil, caption="Your face", width=320)
 
     with st.spinner("Reading your roots..."):
         (face_svm, face_sc, face_pca, face_le,
          hair_model, hair_sc, hair_pca, hair_le, detector) = load_models()
         face_shape, face_conf = predict_face_shape(face_arr, detector, face_svm, face_sc, face_pca, face_le)
-        hair_type,  hair_conf = predict_hair_type(hair_arr, hair_model, hair_sc, hair_pca, hair_le)
+        # Only classify coil type for natural hair with a hair photo
+        if hair_state == "natural" and hair_pil is not None:
+            hair_type, hair_conf = predict_hair_type(hair_arr, hair_model, hair_sc, hair_pca, hair_le)
+        else:
+            hair_type, hair_conf = None, None
 
     if face_shape is None:
         st.error("We couldn't find a face. Please share a clear, front-facing photo.")
@@ -438,16 +495,28 @@ if face_pil is not None and hair_pil is not None:
         </div>
         """, unsafe_allow_html=True)
     with r2:
-        st.markdown(f"""
-        <div class="fmr-card">
-            <div class="fmr-card-label">Hair Type</div>
-            <div class="fmr-metric-value">{hair_type}</div>
-            <div style="font-size:12px;color:#8A6F5C;margin:6px 0 1rem;">{HAIR_TYPE_DESC.get(hair_type, "")}</div>
-            {conf_bars_html(hair_conf)}
-        </div>
-        """, unsafe_allow_html=True)
+        if hair_type is not None:
+            st.markdown(f"""
+            <div class="fmr-card">
+                <div class="fmr-card-label">Hair Type · Natural</div>
+                <div class="fmr-metric-value">{hair_type}</div>
+                <div style="font-size:12px;color:#8A6F5C;margin:6px 0 1rem;">{HAIR_TYPE_DESC.get(hair_type, "")}</div>
+                {conf_bars_html(hair_conf)}
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+            <div class="fmr-card">
+                <div class="fmr-card-label">Hair State</div>
+                <div class="fmr-metric-value">{hair_state.title()}</div>
+                <div style="font-size:12px;color:#8A6F5C;margin:6px 0 1rem;">
+                    Coil-type analysis (3C-4C) applies to natural hair. Recommendations
+                    below are matched to your face shape and {hair_state} hair.
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
 
-    result = get_full_recommendation(face_shape, hair_type, gender)
+    result = get_full_recommendation(face_shape, hair_state, hair_type, gender)
     hairstyles = result["hairstyles"]
 
     def maint_ok(style_name):
@@ -553,11 +622,14 @@ if face_pil is not None and hair_pil is not None:
     """, unsafe_allow_html=True)
 
 else:
-    st.markdown("""
+    hint = ("Share your face and hair photos above to discover styles made for your roots."
+            if hair_state == "natural"
+            else "Share your face photo above to discover styles made for your roots.")
+    st.markdown(f"""
     <div style="margin-top:3rem;text-align:center;padding:4rem 2rem;">
         <div style="font-size:34px;margin-bottom:1rem;">🌿</div>
         <div style="font-size:14px;color:#A8917C;">
-            Share both photos above to discover styles made for your roots.
+            {hint}
         </div>
     </div>
     """, unsafe_allow_html=True)
