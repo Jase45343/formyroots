@@ -65,17 +65,17 @@ html, body, [data-testid="stAppViewContainer"] {
 /* Brand */
 .fmr-wordmark { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 700;
     letter-spacing: 0.14em; text-transform: uppercase; color: #A44A3F; }
-.fmr-company { font-size: 10px; color: #A8917C; letter-spacing: 0.12em;
+.fmr-company { font-size: 10px; color: #7A5E48; letter-spacing: 0.12em;
     text-transform: uppercase; margin-top: 2px; }
 .fmr-hero-title { font-family: 'Playfair Display', serif; font-size: clamp(26px, 7vw, 42px);
     font-weight: 600; line-height: 1.15; color: #3A2A24; margin: 0.5rem 0 0.5rem; }
-.fmr-hero-sub { font-size: 15px; color: #7A6354; font-weight: 300; line-height: 1.6; }
+.fmr-hero-sub { font-size: 15px; color: #5A4232; font-weight: 300; line-height: 1.6; }
 
 /* Cards */
 .fmr-card { background: #FBF4EC; border: 1px solid #E4D3C0; border-radius: 16px;
     padding: 1.25rem; box-shadow: 0 1px 3px rgba(58,42,36,0.04); }
 .fmr-card-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
-    text-transform: uppercase; color: #A8917C; margin-bottom: 0.75rem; }
+    text-transform: uppercase; color: #7A5E48; margin-bottom: 0.75rem; }
 
 .pill { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px;
     font-weight: 600; letter-spacing: 0.03em; margin: 3px 3px 0 0; }
@@ -87,10 +87,10 @@ html, body, [data-testid="stAppViewContainer"] {
     color: #3A2A24; line-height: 1.1; }
 
 .conf-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
-.conf-name { font-size: 12px; color: #8A6F5C; width: 48px; flex-shrink: 0; }
+.conf-name { font-size: 12px; color: #6B4F3A; width: 48px; flex-shrink: 0; }
 .conf-bar-bg { flex: 1; height: 5px; background: #E4D3C0; border-radius: 4px; overflow: hidden; }
 .conf-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #A44A3F, #C8A24A); }
-.conf-pct { font-size: 11px; color: #A8917C; width: 30px; text-align: right; flex-shrink: 0; }
+.conf-pct { font-size: 11px; color: #7A5E48; width: 30px; text-align: right; flex-shrink: 0; }
 
 .style-card { background: #FBF4EC; border: 1px solid #E4D3C0; border-radius: 14px;
     padding: 1rem; margin-bottom: 10px; }
@@ -98,29 +98,29 @@ html, body, [data-testid="stAppViewContainer"] {
     text-transform: uppercase; margin-bottom: 6px; }
 .style-card-name { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600;
     color: #3A2A24; margin-bottom: 6px; }
-.style-card-desc { font-size: 12px; color: #8A6F5C; line-height: 1.55; }
+.style-card-desc { font-size: 12px; color: #6B4F3A; line-height: 1.55; }
 
 .culture-note { background: #F3E7DA; border-left: 3px solid #C8A24A; border-radius: 0 10px 10px 0;
     padding: 0.7rem 0.9rem; margin-top: 10px; }
 .culture-label { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
     color: #97751F; margin-bottom: 4px; }
 .culture-text { font-size: 11.5px; color: #6B5444; line-height: 1.55; }
-.culture-meta { font-size: 11px; color: #8A6F5C; margin-top: 5px; }
+.culture-meta { font-size: 11px; color: #6B4F3A; margin-top: 5px; }
 .culture-meta b { color: #5A4034; font-weight: 600; }
 
 .routine-row { display: grid; grid-template-columns: 84px 1fr; gap: 0 0.8rem;
     padding: 0.8rem 0; border-bottom: 1px solid #EADBC9; }
 .routine-row:last-child { border-bottom: none; }
 .routine-step { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-    color: #A8917C; padding-top: 2px; }
+    color: #7A5E48; padding-top: 2px; }
 .routine-text { font-size: 13px; color: #5A4034; line-height: 1.55; }
 
 .product-card { background: #F3E7DA; border: 1px solid #E4D3C0; border-radius: 12px;
     padding: 0.9rem 1rem; margin-bottom: 8px; display: grid; grid-template-columns: 1fr auto;
     gap: 0.5rem; align-items: start; }
 .product-name { font-size: 13px; font-weight: 600; color: #3A2A24; margin-bottom: 3px; }
-.product-why { font-size: 11px; color: #8A6F5C; line-height: 1.45; }
-.product-where { font-size: 10px; color: #A8917C; margin-top: 4px; }
+.product-why { font-size: 11px; color: #6B4F3A; line-height: 1.45; }
+.product-where { font-size: 10px; color: #7A5E48; margin-top: 4px; }
 .product-price { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600;
     color: #A44A3F; white-space: nowrap; }
 
@@ -151,6 +151,12 @@ html, body, [data-testid="stAppViewContainer"] {
     border-radius: 10px !important; font-weight: 600 !important; font-size: 14px !important;
     padding: 0.5rem 1rem !important; }
 .stButton button:hover { background: #8E3D33 !important; }
+
+/* Readability: darken Streamlit caption + radio text on mobile */
+[data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p {
+    color: #6B4F3A !important; font-size: 12.5px !important; }
+.stRadio [role="radiogroup"] label { color: #3A2A24 !important; font-weight: 500 !important; }
+.fmr-hero-sub { color: #4A3526 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -302,8 +308,8 @@ st.markdown("""
 <div style="margin-bottom:1.5rem;">
     <div class="fmr-wordmark">ForMyRoots</div>
     <div class="fmr-company">by DeepRooted Intelligence</div>
-    <div class="fmr-hero-title">Let's understand your roots</div>
-    <div class="fmr-hero-sub">Hairstyles designed for your hair, your features, and your culture - built for African hair.</div>
+    <div class="fmr-hero-title">Hairstyles made for African hair</div>
+    <div class="fmr-hero-sub">Share your photos and get hairstyle recommendations matched to your hair type and face shape, with care tips and products available near you.</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -365,7 +371,7 @@ else:
 ready = face_pil is not None and (hair_state != "natural" or hair_pil is not None)
 
 if ready:
-    with st.spinner("Reading your roots..."):
+    with st.spinner("Analysing your photos..."):
         (face_svm, face_sc, face_pca, face_le,
          hair_model, hair_sc, hair_pca, hair_le, detector) = load_models()
         face_shape, face_conf = predict_face_shape(face_arr, detector, face_svm, face_sc, face_pca, face_le)
@@ -379,12 +385,12 @@ if ready:
         st.stop()
 
     # Profile
-    st.markdown('<div class="section-header"><span class="section-title">Your hair profile</span><span class="section-line"></span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header"><span class="section-title">Your results</span><span class="section-line"></span></div>', unsafe_allow_html=True)
     st.markdown(f"""
     <div class="fmr-card" style="margin-bottom:10px;">
         <div class="fmr-card-label">Face Shape</div>
         <div class="fmr-metric-value">{face_shape.title()}</div>
-        <div style="font-size:12px;color:#8A6F5C;margin:6px 0 1rem;">{FACE_SHAPE_DESC.get(face_shape,"")}</div>
+        <div style="font-size:12px;color:#6B4F3A;margin:6px 0 1rem;">{FACE_SHAPE_DESC.get(face_shape,"")}</div>
         {conf_bars_html(face_conf)}
     </div>""", unsafe_allow_html=True)
     if hair_type is not None:
@@ -392,7 +398,7 @@ if ready:
         <div class="fmr-card">
             <div class="fmr-card-label">Hair Type · Natural</div>
             <div class="fmr-metric-value">{hair_type}</div>
-            <div style="font-size:12px;color:#8A6F5C;margin:6px 0 1rem;">{HAIR_TYPE_DESC.get(hair_type,"")}</div>
+            <div style="font-size:12px;color:#6B4F3A;margin:6px 0 1rem;">{HAIR_TYPE_DESC.get(hair_type,"")}</div>
             {conf_bars_html(hair_conf)}
         </div>""", unsafe_allow_html=True)
     else:
@@ -400,14 +406,14 @@ if ready:
         <div class="fmr-card">
             <div class="fmr-card-label">Hair State</div>
             <div class="fmr-metric-value">{hair_state.title()}</div>
-            <div style="font-size:12px;color:#8A6F5C;margin-top:6px;">Coil-type analysis applies to natural hair. Styles below are matched to your face shape and {hair_state} hair.</div>
+            <div style="font-size:12px;color:#6B4F3A;margin-top:6px;">Coil-type analysis applies to natural hair. Styles below are matched to your face shape and {hair_state} hair.</div>
         </div>""", unsafe_allow_html=True)
 
     result = get_full_recommendation(face_shape, hair_state, hair_type, gender)
     filtered = result["hairstyles"]
 
     # Recommended styles
-    st.markdown('<div class="section-header"><span class="section-title">Styles for your roots</span><span class="section-line"></span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header"><span class="section-title">Recommended styles</span><span class="section-line"></span></div>', unsafe_allow_html=True)
     for i, style in enumerate(filtered):
         meta = STYLE_META.get(style, {"desc":"A great fit for your profile.","tags":[]})
         st.markdown(f"""
@@ -419,7 +425,7 @@ if ready:
         </div>""", unsafe_allow_html=True)
 
     # Styles + culture
-    st.markdown('<div class="section-header"><span class="section-title">See the styles &amp; their stories</span><span class="section-line"></span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header"><span class="section-title">See the styles</span><span class="section-line"></span></div>', unsafe_allow_html=True)
     for style in filtered:
         culture = get_style_culture(style)
         img_path = get_reference_image(style, gender)
@@ -460,13 +466,14 @@ if ready:
 
     st.markdown("""
     <div class="fmr-divider" style="margin-top:2.5rem"></div>
-    <div style="font-size:11px;color:#A8917C;text-align:center;padding-bottom:1.5rem;">
-        ForMyRoots by DeepRooted Intelligence - reconnecting us with our roots, one strand at a time.
+    <div style="font-size:11px;color:#7A5E48;text-align:center;padding-bottom:1.5rem;">
+        ForMyRoots by DeepRooted Intelligence · Hairstyle recommendations for African hair.
+        AI-generated and intended as inspiration.
     </div>""", unsafe_allow_html=True)
 
 else:
     st.markdown("""
     <div style="margin-top:2rem;text-align:center;padding:2.5rem 1rem;">
         <div style="font-size:30px;margin-bottom:0.75rem;">🌿</div>
-        <div style="font-size:13px;color:#A8917C;">Add your photo(s) above to discover styles made for your roots.</div>
+        <div style="font-size:13px;color:#7A5E48;">Add your photo(s) above to see hairstyle recommendations.</div>
     </div>""", unsafe_allow_html=True)
